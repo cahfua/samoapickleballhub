@@ -1,0 +1,113 @@
+﻿@page "/"
+@using Microsoft.EntityFrameworkCore
+@using samoapickleballhub.Data
+@using samoapickleballhub.Models
+@inject ApplicationDbContext Db
+
+<PageTitle>Samoa Pickleball Hub</PageTitle>
+
+<section class="hero-section">
+    <div>
+        <span class="eyebrow">Samoa Pickleball Community</span>
+        <h1>Connect, compete, and grow pickleball in Samoa.</h1>
+        <p>
+            A modern community hub for players, tournaments, match results,
+            announcements, and leaderboards.
+        </p>
+        <div class="hero-actions">
+            <a class="btn-primary-custom" href="/players">View Players</a>
+            <a class="btn-outline-custom" href="/tournaments">Upcoming Tournaments</a>
+        </div>
+    </div>
+
+    <div class="hero-card">
+        <img src="/hero-placeholder.svg" alt="Pickleball court placeholder image" />
+    </div>
+</section>
+
+<section class="stats-grid">
+    <div class="stat-card">
+        <h2>@playerCount</h2>
+        <p>Players</p>
+    </div>
+    <div class="stat-card">
+        <h2>@tournamentCount</h2>
+        <p>Tournaments</p>
+    </div>
+    <div class="stat-card">
+        <h2>@matchCount</h2>
+        <p>Matches</p>
+    </div>
+    <div class="stat-card">
+        <h2>@announcementCount</h2>
+        <p>Announcements</p>
+    </div>
+</section>
+
+<section class="section-heading">
+    <span class="eyebrow">Featured</span>
+    <h2>Community Highlights</h2>
+</section>
+
+<div class="feature-carousel" aria-label="Featured Samoa Pickleball Hub features">
+    <div class="feature-slide">
+        <h3>Player Profiles</h3>
+        <p>Track skill levels, villages, wins, losses, and player information.</p>
+    </div>
+    <div class="feature-slide">
+        <h3>Tournament Scheduling</h3>
+        <p>View upcoming events, locations, max players, and tournament details.</p>
+    </div>
+    <div class="feature-slide">
+        <h3>Leaderboard</h3>
+        <p>Rank players by wins and win rate to encourage friendly competition.</p>
+    </div>
+</div>
+
+<section class="section-heading">
+    <span class="eyebrow">Latest Updates</span>
+    <h2>Announcements</h2>
+</section>
+
+<div class="card-grid">
+    @if (announcements.Count == 0)
+    {
+        <div class="empty-card">
+            <h3>No announcements yet</h3>
+            <p>Create an announcement to share updates with the community.</p>
+        </div>
+    }
+    else
+    {
+        @foreach (var item in announcements)
+        {
+            <article class="modern-card">
+                <span class="badge-soft">@item.Category</span>
+                <h3>@item.Title</h3>
+                <p>@item.Content</p>
+                <small>@item.PostedDate.ToShortDateString()</small>
+            </article>
+        }
+    }
+</div>
+
+@code {
+    private int playerCount;
+    private int tournamentCount;
+    private int matchCount;
+    private int announcementCount;
+    private List<Announcement> announcements = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        playerCount = await Db.Players.CountAsync();
+        tournamentCount = await Db.Tournaments.CountAsync();
+        matchCount = await Db.MatchResults.CountAsync();
+        announcementCount = await Db.Announcements.CountAsync();
+
+        announcements = await Db.Announcements
+            .OrderByDescending(a => a.PostedDate)
+            .Take(3)
+            .ToListAsync();
+    }
+}

@@ -1,0 +1,170 @@
+@page "/matches"
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using samoapickleballhub.Data
+@using samoapickleballhub.Models
+@inject ApplicationDbContext Db
+
+<PageTitle>Matches</PageTitle>
+
+<div class="page-header">
+    <div>
+        <span class="eyebrow">Results</span>
+        <h1>Match Results</h1>
+    </div>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(successMessage))
+{
+    <div class="alert-success-custom">@successMessage</div>
+}
+@if (!string.IsNullOrWhiteSpace(errorMessage))
+{
+    <div class="alert-error-custom">@errorMessage</div>
+}
+
+<div class="form-card">
+    <h3>@(editingId == 0 ? "Add Match Result" : "Edit Match Result")</h3>
+
+    <EditForm Model="matchForm" OnValidSubmit="SaveMatch">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <label>Player One</label>
+        <InputText class="input" @bind-Value="matchForm.PlayerOne" />
+
+        <label>Player Two</label>
+        <InputText class="input" @bind-Value="matchForm.PlayerTwo" />
+
+        <label>Winner</label>
+        <InputText class="input" @bind-Value="matchForm.Winner" />
+
+        <label>Score</label>
+        <InputText class="input" @bind-Value="matchForm.Score" />
+
+        <label>Match Date</label>
+        <InputDate class="input" @bind-Value="matchForm.MatchDate" />
+
+        <button class="btn-primary-custom mt-3" type="submit">Save Match</button>
+        <button class="btn-outline-dark-custom mt-3" type="button" @onclick="ResetForm">Clear</button>
+    </EditForm>
+</div>
+
+<table class="table-modern mt-4">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Player One</th>
+            <th>Player Two</th>
+            <th>Winner</th>
+            <th>Score</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var match in matches)
+        {
+            <tr>
+                <td>@match.MatchDate.ToShortDateString()</td>
+                <td>@match.PlayerOne</td>
+                <td>@match.PlayerTwo</td>
+                <td>@match.Winner</td>
+                <td>@match.Score</td>
+                <td>
+                    <button class="small-btn" @onclick="() => EditMatch(match)">Edit</button>
+                    <button class="small-btn-danger" @onclick="() => DeleteMatch(match.Id)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<MatchResult> matches = new();
+    private MatchResult matchForm = new();
+    private int editingId = 0;
+    private string successMessage = "";
+    private string errorMessage = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMatches();
+    }
+
+    private async Task LoadMatches()
+    {
+        matches = await Db.MatchResults.OrderByDescending(m => m.MatchDate).ToListAsync();
+    }
+
+    private async Task SaveMatch()
+    {
+        try
+        {
+            if (editingId == 0)
+            {
+                Db.MatchResults.Add(matchForm);
+                successMessage = "Match result created successfully.";
+            }
+            else
+            {
+                var existing = await Db.MatchResults.FindAsync(editingId);
+                if (existing is not null)
+                {
+                    existing.PlayerOne = matchForm.PlayerOne;
+                    existing.PlayerTwo = matchForm.PlayerTwo;
+                    existing.Winner = matchForm.Winner;
+                    existing.Score = matchForm.Score;
+                    existing.MatchDate = matchForm.MatchDate;
+                    successMessage = "Match result updated successfully.";
+                }
+            }
+
+            await Db.SaveChangesAsync();
+            ResetForm();
+            await LoadMatches();
+        }
+        catch
+        {
+            errorMessage = "An error occurred while saving the match result.";
+        }
+    }
+
+    private void EditMatch(MatchResult match)
+    {
+        editingId = match.Id;
+        matchForm = new MatchResult
+        {
+            PlayerOne = match.PlayerOne,
+            PlayerTwo = match.PlayerTwo,
+            Winner = match.Winner,
+            Score = match.Score,
+            MatchDate = match.MatchDate
+        };
+    }
+
+    private async Task DeleteMatch(int id)
+    {
+        try
+        {
+            var match = await Db.MatchResults.FindAsync(id);
+            if (match is not null)
+            {
+                Db.MatchResults.Remove(match);
+                await Db.SaveChangesAsync();
+                successMessage = "Match result deleted successfully.";
+                await LoadMatches();
+            }
+        }
+        catch
+        {
+            errorMessage = "An error occurred while deleting the match result.";
+        }
+    }
+
+    private void ResetForm()
+    {
+        editingId = 0;
+        matchForm = new MatchResult();
+        errorMessage = "";
+    }
+}

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="700" height="420">
+  <rect width="700" height="420" fill="#F8FAFC"></rect>
+  <rect x="60" y="70" width="580" height="260" rx="28" fill="#006D77"></rect>
+  <circle cx="520" cy="145" r="45" fill="#FFB703"></circle>
+  <text x="350" y="220" text-anchor="middle" font-size="42" font-family="Arial" font-weight="700" fill="white">Tournament</text>
+  <text x="350" y="265" text-anchor="middle" font-size="24" font-family="Arial" fill="#E0F2F1">Image Placeholder</text>
+</svg>

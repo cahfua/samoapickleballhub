@@ -1,0 +1,158 @@
+@page "/tournaments"
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using samoapickleballhub.Data
+@using samoapickleballhub.Models
+@inject ApplicationDbContext Db
+
+<PageTitle>Tournaments</PageTitle>
+
+<div class="page-header">
+    <div>
+        <span class="eyebrow">Events</span>
+        <h1>Tournaments</h1>
+    </div>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(successMessage))
+{
+    <div class="alert-success-custom">@successMessage</div>
+}
+@if (!string.IsNullOrWhiteSpace(errorMessage))
+{
+    <div class="alert-error-custom">@errorMessage</div>
+}
+
+<div class="form-card">
+    <h3>@(editingId == 0 ? "Add Tournament" : "Edit Tournament")</h3>
+
+    <EditForm Model="tournamentForm" OnValidSubmit="SaveTournament">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <label>Tournament Name</label>
+        <InputText class="input" @bind-Value="tournamentForm.Name" />
+
+        <label>Date</label>
+        <InputDate class="input" @bind-Value="tournamentForm.EventDate" />
+
+        <label>Location</label>
+        <InputText class="input" @bind-Value="tournamentForm.Location" />
+
+        <label>Description</label>
+        <InputTextArea class="input" @bind-Value="tournamentForm.Description" />
+
+        <label>Max Players</label>
+        <InputNumber class="input" @bind-Value="tournamentForm.MaxPlayers" />
+
+        <button class="btn-primary-custom mt-3" type="submit">Save Tournament</button>
+        <button class="btn-outline-dark-custom mt-3" type="button" @onclick="ResetForm">Clear</button>
+    </EditForm>
+</div>
+
+<div class="card-grid mt-4">
+    @foreach (var tournament in tournaments)
+    {
+        <article class="modern-card">
+            <img class="card-image" src="@tournament.ImageUrl" alt="Tournament placeholder image" />
+            <span class="badge-soft">@tournament.EventDate.ToShortDateString()</span>
+            <h3>@tournament.Name</h3>
+            <p><strong>Location:</strong> @tournament.Location</p>
+            <p>@tournament.Description</p>
+            <p><strong>Max Players:</strong> @tournament.MaxPlayers</p>
+            <button class="small-btn" @onclick="() => EditTournament(tournament)">Edit</button>
+            <button class="small-btn-danger" @onclick="() => DeleteTournament(tournament.Id)">Delete</button>
+        </article>
+    }
+</div>
+
+@code {
+    private List<Tournament> tournaments = new();
+    private Tournament tournamentForm = new();
+    private int editingId = 0;
+    private string successMessage = "";
+    private string errorMessage = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTournaments();
+    }
+
+    private async Task LoadTournaments()
+    {
+        tournaments = await Db.Tournaments.OrderBy(t => t.EventDate).ToListAsync();
+    }
+
+    private async Task SaveTournament()
+    {
+        try
+        {
+            if (editingId == 0)
+            {
+                Db.Tournaments.Add(tournamentForm);
+                successMessage = "Tournament created successfully.";
+            }
+            else
+            {
+                var existing = await Db.Tournaments.FindAsync(editingId);
+                if (existing is not null)
+                {
+                    existing.Name = tournamentForm.Name;
+                    existing.EventDate = tournamentForm.EventDate;
+                    existing.Location = tournamentForm.Location;
+                    existing.Description = tournamentForm.Description;
+                    existing.MaxPlayers = tournamentForm.MaxPlayers;
+                    successMessage = "Tournament updated successfully.";
+                }
+            }
+
+            await Db.SaveChangesAsync();
+            ResetForm();
+            await LoadTournaments();
+        }
+        catch
+        {
+            errorMessage = "An error occurred while saving the tournament.";
+        }
+    }
+
+    private void EditTournament(Tournament tournament)
+    {
+        editingId = tournament.Id;
+        tournamentForm = new Tournament
+        {
+            Name = tournament.Name,
+            EventDate = tournament.EventDate,
+            Location = tournament.Location,
+            Description = tournament.Description,
+            MaxPlayers = tournament.MaxPlayers,
+            ImageUrl = tournament.ImageUrl
+        };
+    }
+
+    private async Task DeleteTournament(int id)
+    {
+        try
+        {
+            var tournament = await Db.Tournaments.FindAsync(id);
+            if (tournament is not null)
+            {
+                Db.Tournaments.Remove(tournament);
+                await Db.SaveChangesAsync();
+                successMessage = "Tournament deleted successfully.";
+                await LoadTournaments();
+            }
+        }
+        catch
+        {
+            errorMessage = "An error occurred while deleting the tournament.";
+        }
+    }
+
+    private void ResetForm()
+    {
+        editingId = 0;
+        tournamentForm = new Tournament();
+        errorMessage = "";
+    }
+}

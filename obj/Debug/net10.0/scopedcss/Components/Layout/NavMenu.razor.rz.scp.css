@@ -1,0 +1,85 @@
+.app-brand[b-c41xkzn2bt] {
+    padding: 1.25rem 1rem;
+}
+
+.app-brand a[b-c41xkzn2bt] {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    color: white;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.brand-mark[b-c41xkzn2bt] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    background: #ffb703;
+    color: #023047;
+    font-weight: 900;
+}
+
+.navbar-toggler[b-c41xkzn2bt] {
+    appearance: none;
+    cursor: pointer;
+    width: 3.5rem;
+    height: 2.5rem;
+    color: white;
+    position: absolute;
+    top: .75rem;
+    right: 1rem;
+    border: 1px solid rgba(255,255,255,.25);
+    border-radius: 10px;
+    background: rgba(255,255,255,.12);
+}
+
+.navbar-toggler[b-c41xkzn2bt]::after {
+    content: "☰";
+    color: white;
+    font-size: 1.4rem;
+}
+
+.nav-scrollable[b-c41xkzn2bt] {
+    display: none;
+    padding: .5rem;
+}
+
+.navbar-toggler:checked ~ .nav-scrollable[b-c41xkzn2bt] {
+    display: block;
+}
+
+.nav-link[b-c41xkzn2bt] {
+    color: rgba(255,255,255,.86);
+    border-radius: 12px;
+    padding: .8rem 1rem;
+    margin-bottom: .25rem;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.nav-link:hover[b-c41xkzn2bt],
+.nav-link.active[b-c41xkzn2bt] {
+    background: rgba(255,255,255,.16);
+    color: white;
+}
+
+.logout-button[b-c41xkzn2bt] {
+    width: 100%;
+    text-align: left;
+    border: 0;
+    background: transparent;
+}
+
+@media (min-width: 641px) {
+    .navbar-toggler[b-c41xkzn2bt] {
+        display: none;
+    }
+
+    .nav-scrollable[b-c41xkzn2bt] {
+        display: block;
+    }
+}

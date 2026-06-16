@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500">
+  <rect width="500" height="500" fill="#E0F2F1"></rect>
+  <circle cx="250" cy="180" r="80" fill="#006D77"></circle>
+  <rect x="130" y="300" width="240" height="110" rx="55" fill="#023047"></rect>
+  <text x="250" y="455" text-anchor="middle" font-size="28" font-family="Arial" fill="#006D77">Player Photo</text>
+</svg>

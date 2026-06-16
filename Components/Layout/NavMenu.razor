@@ -1,0 +1,32 @@
+﻿<div class="app-brand">
+    <a href="/" aria-label="Samoa Pickleball Hub home">
+        <span class="brand-mark">SP</span>
+        <span>Samoa Pickleball Hub</span>
+    </a>
+</div>
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" aria-label="Toggle navigation menu" />
+
+<nav class="nav-scrollable" aria-label="Main navigation">
+    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">Home</NavLink>
+    <NavLink class="nav-link" href="players">Players</NavLink>
+    <NavLink class="nav-link" href="tournaments">Tournaments</NavLink>
+    <NavLink class="nav-link" href="matches">Matches</NavLink>
+    <NavLink class="nav-link" href="leaderboard">Leaderboard</NavLink>
+    <NavLink class="nav-link" href="announcements">Announcements</NavLink>
+    <NavLink class="nav-link" href="help">User Guide</NavLink>
+
+    <AuthorizeView>
+        <Authorized>
+            <NavLink class="nav-link" href="Account/Manage">Account</NavLink>
+            <form action="Account/Logout" method="post">
+                <AntiforgeryToken />
+                <button class="nav-link logout-button" type="submit">Logout</button>
+            </form>
+        </Authorized>
+        <NotAuthorized>
+            <NavLink class="nav-link" href="Account/Login">Login</NavLink>
+            <NavLink class="nav-link" href="Account/Register">Register</NavLink>
+        </NotAuthorized>
+    </AuthorizeView>
+</nav>

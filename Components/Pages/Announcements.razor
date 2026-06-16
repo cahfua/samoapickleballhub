@@ -1,0 +1,156 @@
+@page "/announcements"
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using samoapickleballhub.Data
+@using samoapickleballhub.Models
+@inject ApplicationDbContext Db
+
+<PageTitle>Announcements</PageTitle>
+
+<div class="page-header">
+    <div>
+        <span class="eyebrow">Community</span>
+        <h1>Announcements</h1>
+    </div>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(successMessage))
+{
+    <div class="alert-success-custom">@successMessage</div>
+}
+@if (!string.IsNullOrWhiteSpace(errorMessage))
+{
+    <div class="alert-error-custom">@errorMessage</div>
+}
+
+<div class="form-card">
+    <h3>@(editingId == 0 ? "Add Announcement" : "Edit Announcement")</h3>
+
+    <EditForm Model="announcementForm" OnValidSubmit="SaveAnnouncement">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <label>Title</label>
+        <InputText class="input" @bind-Value="announcementForm.Title" />
+
+        <label>Category</label>
+        <InputSelect class="select" @bind-Value="announcementForm.Category">
+            <option>Community</option>
+            <option>Tournament</option>
+            <option>Leaderboard</option>
+            <option>Maintenance</option>
+        </InputSelect>
+
+        <label>Content</label>
+        <InputTextArea class="input" @bind-Value="announcementForm.Content" />
+
+        <label>Posted Date</label>
+        <InputDate class="input" @bind-Value="announcementForm.PostedDate" />
+
+        <button class="btn-primary-custom mt-3" type="submit">Save Announcement</button>
+        <button class="btn-outline-dark-custom mt-3" type="button" @onclick="ResetForm">Clear</button>
+    </EditForm>
+</div>
+
+<div class="card-grid mt-4">
+    @foreach (var item in announcements)
+    {
+        <article class="modern-card">
+            <span class="badge-soft">@item.Category</span>
+            <h3>@item.Title</h3>
+            <p>@item.Content</p>
+            <small>@item.PostedDate.ToShortDateString()</small>
+            <br />
+            <button class="small-btn mt-3" @onclick="() => EditAnnouncement(item)">Edit</button>
+            <button class="small-btn-danger mt-3" @onclick="() => DeleteAnnouncement(item.Id)">Delete</button>
+        </article>
+    }
+</div>
+
+@code {
+    private List<Announcement> announcements = new();
+    private Announcement announcementForm = new();
+    private int editingId = 0;
+    private string successMessage = "";
+    private string errorMessage = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAnnouncements();
+    }
+
+    private async Task LoadAnnouncements()
+    {
+        announcements = await Db.Announcements.OrderByDescending(a => a.PostedDate).ToListAsync();
+    }
+
+    private async Task SaveAnnouncement()
+    {
+        try
+        {
+            if (editingId == 0)
+            {
+                Db.Announcements.Add(announcementForm);
+                successMessage = "Announcement created successfully.";
+            }
+            else
+            {
+                var existing = await Db.Announcements.FindAsync(editingId);
+                if (existing is not null)
+                {
+                    existing.Title = announcementForm.Title;
+                    existing.Category = announcementForm.Category;
+                    existing.Content = announcementForm.Content;
+                    existing.PostedDate = announcementForm.PostedDate;
+                    successMessage = "Announcement updated successfully.";
+                }
+            }
+
+            await Db.SaveChangesAsync();
+            ResetForm();
+            await LoadAnnouncements();
+        }
+        catch
+        {
+            errorMessage = "An error occurred while saving the announcement.";
+        }
+    }
+
+    private void EditAnnouncement(Announcement announcement)
+    {
+        editingId = announcement.Id;
+        announcementForm = new Announcement
+        {
+            Title = announcement.Title,
+            Category = announcement.Category,
+            Content = announcement.Content,
+            PostedDate = announcement.PostedDate
+        };
+    }
+
+    private async Task DeleteAnnouncement(int id)
+    {
+        try
+        {
+            var announcement = await Db.Announcements.FindAsync(id);
+            if (announcement is not null)
+            {
+                Db.Announcements.Remove(announcement);
+                await Db.SaveChangesAsync();
+                successMessage = "Announcement deleted successfully.";
+                await LoadAnnouncements();
+            }
+        }
+        catch
+        {
+            errorMessage = "An error occurred while deleting the announcement.";
+        }
+    }
+
+    private void ResetForm()
+    {
+        editingId = 0;
+        announcementForm = new Announcement();
+        errorMessage = "";
+    }
+}

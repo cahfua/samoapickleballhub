@@ -1,0 +1,60 @@
+@page "/leaderboard"
+@using Microsoft.EntityFrameworkCore
+@using samoapickleballhub.Data
+@using samoapickleballhub.Models
+@inject ApplicationDbContext Db
+
+<PageTitle>Leaderboard</PageTitle>
+
+<div class="page-header">
+    <div>
+        <span class="eyebrow">Rankings</span>
+        <h1>Leaderboard</h1>
+    </div>
+</div>
+
+<table class="table-modern">
+    <thead>
+        <tr>
+            <th>Rank</th>
+            <th>Player</th>
+            <th>Village</th>
+            <th>Wins</th>
+            <th>Losses</th>
+            <th>Win Rate</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            var rank = 1;
+        }
+
+        @foreach (var player in players)
+        {
+            <tr>
+                <td>#@rank</td>
+                <td>@player.Name</td>
+                <td>@player.Village</td>
+                <td>@player.Wins</td>
+                <td>@player.Losses</td>
+                <td>@player.WinRate%</td>
+            </tr>
+
+            rank++;
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<Player> players = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var allPlayers = await Db.Players.ToListAsync();
+
+        players = allPlayers
+            .OrderByDescending(p => p.Wins)
+            .ThenByDescending(p => p.WinRate)
+            .ToList();
+    }
+}

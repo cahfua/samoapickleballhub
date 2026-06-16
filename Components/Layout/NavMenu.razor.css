@@ -1,0 +1,85 @@
+.app-brand {
+    padding: 1.25rem 1rem;
+}
+
+.app-brand a {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    color: white;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.brand-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    background: #ffb703;
+    color: #023047;
+    font-weight: 900;
+}
+
+.navbar-toggler {
+    appearance: none;
+    cursor: pointer;
+    width: 3.5rem;
+    height: 2.5rem;
+    color: white;
+    position: absolute;
+    top: .75rem;
+    right: 1rem;
+    border: 1px solid rgba(255,255,255,.25);
+    border-radius: 10px;
+    background: rgba(255,255,255,.12);
+}
+
+.navbar-toggler::after {
+    content: "☰";
+    color: white;
+    font-size: 1.4rem;
+}
+
+.nav-scrollable {
+    display: none;
+    padding: .5rem;
+}
+
+.navbar-toggler:checked ~ .nav-scrollable {
+    display: block;
+}
+
+.nav-link {
+    color: rgba(255,255,255,.86);
+    border-radius: 12px;
+    padding: .8rem 1rem;
+    margin-bottom: .25rem;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    background: rgba(255,255,255,.16);
+    color: white;
+}
+
+.logout-button {
+    width: 100%;
+    text-align: left;
+    border: 0;
+    background: transparent;
+}
+
+@media (min-width: 641px) {
+    .navbar-toggler {
+        display: none;
+    }
+
+    .nav-scrollable {
+        display: block;
+    }
+}

@@ -1,0 +1,164 @@
+@page "/players"
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using samoapickleballhub.Data
+@using samoapickleballhub.Models
+@inject ApplicationDbContext Db
+
+<PageTitle>Players</PageTitle>
+
+<div class="page-header">
+    <div>
+        <span class="eyebrow">Community</span>
+        <h1>Players</h1>
+    </div>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <div class="alert-success-custom">@message</div>
+}
+
+<div class="form-card">
+    <h3>@(editingId == 0 ? "Add Player" : "Edit Player")</h3>
+
+    <EditForm Model="playerForm" OnValidSubmit="SavePlayer">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <label>Name</label>
+        <InputText class="input" @bind-Value="playerForm.Name" />
+
+        <label>Email</label>
+        <InputText class="input" @bind-Value="playerForm.Email" />
+
+        <label>Phone</label>
+        <InputText class="input" @bind-Value="playerForm.Phone" />
+
+        <label>Skill Level</label>
+        <InputSelect class="select" @bind-Value="playerForm.SkillLevel">
+            <option>Beginner</option>
+            <option>Intermediate</option>
+            <option>Advanced</option>
+        </InputSelect>
+
+        <label>Village</label>
+        <InputText class="input" @bind-Value="playerForm.Village" />
+
+        <label>Wins</label>
+        <InputNumber class="input" @bind-Value="playerForm.Wins" />
+
+        <label>Losses</label>
+        <InputNumber class="input" @bind-Value="playerForm.Losses" />
+
+        <button class="btn-primary-custom mt-3" type="submit">Save Player</button>
+        <button class="btn-outline-dark-custom mt-3" type="button" @onclick="ResetForm">Clear</button>
+    </EditForm>
+</div>
+
+<table class="table-modern mt-4">
+    <thead>
+        <tr>
+            <th>Player</th>
+            <th>Email</th>
+            <th>Skill</th>
+            <th>Village</th>
+            <th>Record</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var player in players)
+        {
+            <tr>
+                <td>@player.Name</td>
+                <td>@player.Email</td>
+                <td>@player.SkillLevel</td>
+                <td>@player.Village</td>
+                <td>@player.Wins - @player.Losses (@player.WinRate%)</td>
+                <td>
+                    <button class="small-btn" @onclick="() => EditPlayer(player)">Edit</button>
+                    <button class="small-btn-danger" @onclick="() => DeletePlayer(player.Id)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<Player> players = new();
+    private Player playerForm = new();
+    private int editingId = 0;
+    private string message = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPlayers();
+    }
+
+    private async Task LoadPlayers()
+    {
+        players = await Db.Players.OrderBy(p => p.Name).ToListAsync();
+    }
+
+    private async Task SavePlayer()
+    {
+        if (editingId == 0)
+        {
+            Db.Players.Add(playerForm);
+            message = "Player created successfully.";
+        }
+        else
+        {
+            var existing = await Db.Players.FindAsync(editingId);
+            if (existing is not null)
+            {
+                existing.Name = playerForm.Name;
+                existing.Email = playerForm.Email;
+                existing.Phone = playerForm.Phone;
+                existing.SkillLevel = playerForm.SkillLevel;
+                existing.Village = playerForm.Village;
+                existing.Wins = playerForm.Wins;
+                existing.Losses = playerForm.Losses;
+                message = "Player updated successfully.";
+            }
+        }
+
+        await Db.SaveChangesAsync();
+        ResetForm();
+        await LoadPlayers();
+    }
+
+    private void EditPlayer(Player player)
+    {
+        editingId = player.Id;
+        playerForm = new Player
+        {
+            Name = player.Name,
+            Email = player.Email,
+            Phone = player.Phone,
+            SkillLevel = player.SkillLevel,
+            Village = player.Village,
+            Wins = player.Wins,
+            Losses = player.Losses
+        };
+    }
+
+    private async Task DeletePlayer(int id)
+    {
+        var player = await Db.Players.FindAsync(id);
+        if (player is not null)
+        {
+            Db.Players.Remove(player);
+            await Db.SaveChangesAsync();
+            message = "Player deleted successfully.";
+            await LoadPlayers();
+        }
+    }
+
+    private void ResetForm()
+    {
+        editingId = 0;
+        playerForm = new Player();
+    }
+}
