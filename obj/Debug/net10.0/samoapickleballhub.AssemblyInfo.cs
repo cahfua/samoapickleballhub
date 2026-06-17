@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("samoapickleballhub")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9cf786411d044b95e1230b7d9f38f6c23bb335a8")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0d0f10b71e2a475254d57269ad06265e349e1491")]
 [assembly: System.Reflection.AssemblyProductAttribute("samoapickleballhub")]
 [assembly: System.Reflection.AssemblyTitleAttribute("samoapickleballhub")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
